@@ -105,7 +105,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Africa/lagsos'
+TIME_ZONE = 'Africa/lagos'
 
 USE_I18N = True
 

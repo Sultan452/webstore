@@ -1,3 +1,66 @@
 from django.db import models
+from django.contrib.auth.models import User
 
+class Category(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
+
+    def __str__(self):
+        return self.name
+    
+class Brand(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)    
+    image = models.ImageField(upload_to="brand_images")
+
+    def __str__(self):
+        return self.name
+
+
+class ImageField(models.Model):
+    image = models.ImageField(upload_to="product_images")
+
+
+class Product(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    display_image = models.ImageField(upload_to="product_display_image")
+    quantity = models.PositiveIntegerField()
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    # image = models.ManyToManyField(ImageField)
+    upload_at = models.DateTimeField(auto_now_add=True) 
+
+    class meta :
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.name
+
+class CartItem(models.Model):
+    id = models.AutoField(primary_key=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    
+    @property
+    def cost(self):
+        return self.product.price * self.quantity
+    
+    def __str__(self):
+        return f"{self.quantity} x {self.product.name}"
+    
+
+class Cart(models.Model):
+    id = models.AutoField(primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    items = models.ManyToManyField(CartItem,related_name="carts")
+
+    @property
+    def total_cost(self):
+        return sum(item.cost for item in self.items.all())
+    
+    def __str__(self):
+        return self.user.username
 # Create your models here.
