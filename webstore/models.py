@@ -57,7 +57,7 @@ class CartItem(models.Model):
 class Cart(models.Model):
     id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    items = models.ManyToManyField(CartItem,related_name="carts")
+    items = models.ForeignKey(CartItem,on_delete=models.CASCADE)
 
     @property
     def total_cost(self):
@@ -68,8 +68,14 @@ class Cart(models.Model):
     
 
 class Order(models.Model):
+    class stage(models.TextChoices):
+        PROCESSING ="PROCESSING"
+        PENDING ="PENDING"
+        COMPLETED ="COMPLETED"
+        CANCELLED ="CANCELLED"
     id = models.AutoField(primary_key=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=stage.choices, default=stage.PROCESSING)
     code = models.CharField(max_length=10)
 
     def save(self, *args, **kwargs):
